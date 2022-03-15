@@ -72,10 +72,10 @@ public class PCAPFileParse {
 //            }
 //            PacketHeader packetHeader = packetHeaderService.parseFilePacketHeader(packetHeaderBuffer, isBigEndian);
 //            System.out.println(packetHeader.toString());
-
+            int index = 1;
             while (fis.read(packetHeaderBuffer) > 0) {
                 // 解析 Packet Header，一共16个字节
-                PacketHeader packetHeader = packetHeaderService.parseFilePacketHeader(packetHeaderBuffer, isBigEndian);
+                PacketHeader packetHeader = packetHeaderService.parseFilePacketHeader(packetHeaderBuffer, isBigEndian, index++);
                 System.out.println(packetHeader.toString());
                 packetDataBuffer = new byte[packetHeader.getCapLen()];
                 // 解析数据链路层的头部，共有14个字节
