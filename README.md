@@ -74,3 +74,83 @@ Packet Data其实就是我们熟悉的数据链路层头部 + IP头 + 传输层�
 
 
 相同字节序的平台在进行网络通信时可以不进行字节序转换，但是跨平台进行网络数据通信时必须进行字节序转换。TCP/IP协议规定了大端模式，还专门除了网络字节序和主机字节序相互转换的接口
+
+
+
+
+
+
+
+### 项目运行流程
+
+1. 在[网站上]([IP/服务器linecorp.com/zh-hans/的信息 - 站长工具 (chinaz.com)](https://ip.tool.chinaz.com/linecorp.com/zh-hans/))查询域名对应的IP地址
+
+2. 抓包，我是在阿里云服务器上使用[tcpdump]()命令进行抓包，具体命令是
+
+   ```shell
+   tcpdump -v -i eth0 dst 147.92.184.162 -w PacpForLine.pcap
+   # -v是产生比较详细的输出，比如包的TTL等
+   # -i是指定要过滤的网卡接口
+   # dst是根据目标网段进行过滤
+   # -w是把产生的pcap文件写入到本地
+   ```
+
+3. 使用`xftp`把产生的文件传入到`Windows`，因为`windows`上安装了`wireshark`，能够可视化数据包文件，如下所示
+
+   <img src="image/image-20220315164545963.png" alt="image-20220315164545963" style="zoom:80%;" />
+
+4. 根据`wireshark`中可视化的信息以及`pcap`文件的结构，编码进行解析
+
+5. 解析代码总共分成了以下几个部分
+
+   ```
+   |--- structure
+   		|--- GlobalHeader      （讲global header中的字段封装成一个类）
+   		|--- PacketHeader
+   		|--- DataLinkLayer
+   		|--- IPHeader
+   		|--- TCPHeader
+   				|--- TCPOptions
+   		|--- TLSStruct
+   				|--- TLSHandShake
+           
+   
+   |--- service
+          |---- PCAPHeaderService  （对pcap文件的global header进行解析）
+          |---- PacketHeaderService （对每个packet的header部分进行分析）
+          |---- PacketDataService   （对每个packet的data部分进行分析）
+                      |---- DataLayerService
+                      |---- IPLayerService
+                      |---- TCPLayerService
+                      |---- TLSParseService
+   
+   |--- DataUtils
+   		|--- byteArrayToInt
+   		|--- convertFromIntToHexa
+   		|--- unixTimeStampToDate
+   		|--- byteArrayToString
+   		|--- ...
+   
+   |--- test
+   	  |--- TestParse
+   ```
+
+6. 运行`TestParse`即可
+
+   ```java
+   File file = new File("E:\\idea-workspace\\network\\src\\file\\Line.pcap");
+   PCAPFileParse fileParse = new PCAPFileParse();
+   fileParse.parsePCAP(file);
+   ```
+
+   ![image-20220315165714714](image/image-20220315165714714.png)
+
+
+
+**不足之处**
+
+- 项目中并没有对一些标记位进行转换，比如在IP头部中的`protocol`字段等于6的时候，就指的是TCP协议，代码中没有进行进一步的转换，GlobalHeader中的`magicNum=D4C3B2A1`也没有说他是小端模式，但是在后续代码中对于相应的计算已经做了对应处理...
+- 项目的TCPOptions字段过于复杂，计算比较困难，所以暂时放弃了
+- 项目中对数据包的校验比较少，只有少量的几个校验，比如对`globalheader,packetHeader`进行校验判断数据包是否损坏
+- 对于TLS的解析工作也略有不足，对于TLS握手阶段，只对`ClientHello`进行了比较充分的解析，包括密码套件等，但是对于另外的三个过程，只是能够判断出处于那种状态，没有对后续数据做进一步处理
+
