@@ -142,4 +142,12 @@ public class DataUtils {
         }
         return -1;
     }
+
+    public static String byteArrayToString(byte[] array) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : array) {
+            sb.append(b);
+        }
+        return sb.toString();
+    }
 }
