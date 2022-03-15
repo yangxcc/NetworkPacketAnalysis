@@ -17,7 +17,8 @@ public class PacketHeaderService {
 
     // 第一，因为是小端，所以他需要reverse，才能够得到正确的值，但是在小端模式中，地址不用反转，时间戳和长度需要反转
     // 第二，对于unix时间戳，要给转换成毫秒，所以要乘1000，这里使用int是不行的，必须要使用字符串
-    public PacketHeader parseFilePacketHeader(byte[] packetHeaderBuffer, boolean isBigEndian) {
+    public PacketHeader parseFilePacketHeader(byte[] packetHeaderBuffer, boolean isBigEndian, int index) {
+        System.out.println("这是第" + index + "个数据包");
 //        byte[] packetHeaderBuffer = Arrays.copyOfRange(this.data, 24, 40);
         int offset = 0;
         PacketHeader packetHeader = new PacketHeader();
