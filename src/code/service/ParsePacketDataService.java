@@ -3,11 +3,13 @@ package code.service;
 import code.structure.DataLinkLayer;
 import code.structure.IPHeader;
 import code.structure.TCPHeader;
+import code.structure.TLSStruct;
 
 import java.util.Arrays;
 
 public class ParsePacketDataService {
     public void parsePacketData(byte[] packetDataBuffer) {
+
         // 仅仅处理以太网的帧
         byte[] framHeaderBuffer = Arrays.copyOfRange(packetDataBuffer, 0, 14);
         DataLinkLayerService dataLinkLayerService = new DataLinkLayerService();
@@ -35,5 +37,15 @@ public class ParsePacketDataService {
         TCPLayerService tcpLayerService = new TCPLayerService();
         TCPHeader tcpHeader = tcpLayerService.parseTCPLayer(tcpHeaderBuffer);
         System.out.println(tcpHeader.toString());
+
+        int tls = ipHeader.getTotalLen() - ipHeader.getHeaderLen() - tcpHeader.getDataOffset();
+        if (tls > 0) {
+            System.out.println("继续处理TLS层的数据");
+            byte[] tlsData = Arrays.copyOfRange(packetDataBuffer, 14 + ipHeaderLen + tcpHeaderLen, packetDataBuffer.length);
+            TLSParseService tlsParseService = new TLSParseService();
+            TLSStruct tlsStruct = tlsParseService.parseTLS(tlsData);
+            System.out.println(tlsStruct.toString());
+        }
+//        System.out.println("下一个Packet");
     }
 }
