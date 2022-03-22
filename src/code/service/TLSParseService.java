@@ -4,11 +4,10 @@ import code.structure.TLSHandshake;
 import code.structure.TLSStruct;
 import code.utils.DataUtils;
 
-import javax.xml.crypto.Data;
 import java.util.Arrays;
 
 public class TLSParseService {
-    public TLSStruct parseTLS(byte[] TLSData) {
+    public TLSStruct parseTLS(byte[] TLSData) {   // byte类型的数据最大是127，比这个数大的表示不了
         TLSStruct tlsStruct = new TLSStruct();
 //        byte[] buff_1 = Arrays.copyOfRange(TLSData, 0, 1);
         int contentType = TLSData[0];
@@ -30,15 +29,28 @@ public class TLSParseService {
                 return tlsStruct;
             }
             byte[] buff_3 = Arrays.copyOfRange(buff, 1, 4);
-            int len = DataUtils.byteArray2Int(DataUtils.reverseArray(buff_3), 3);
+            int len = DataUtils.byteArrayToInt3(DataUtils.reverseArray(buff_3));    // 这里不对，求三位字节
             tlsHandshake.setLen(len);
             buff_2 = Arrays.copyOfRange(buff, 4, 6);
             int ver = DataUtils.byteArrayToShort(buff_2);
             tlsHandshake.setVersion(ver);
             // 32位的随机数
             byte[] buff_32 = Arrays.copyOfRange(buff, 6, 38);
-            String random = DataUtils.byteArrayToString(buff_32);
-            tlsHandshake.setRandom(random);
+//            for (int i = 0; i < 32; i++) {
+//                System.out.printf(buff_32[i] + " ");
+//            }
+//            System.exit(0);
+            StringBuilder random = new StringBuilder();
+            for (int i = 0; i < 32; ) {
+                byte[] buff_4 = Arrays.copyOfRange(buff_32, i, i + 4);
+                i += 4;
+                int i1 = DataUtils.byteArrayToInt(buff_4);
+                random.append(DataUtils.convertFromIntToHexa(i1));
+//                System.out.println(i1);
+//                System.out.println(DataUtils.convertFromIntToHexa(i1));
+            }
+
+            tlsHandshake.setRandom(random.toString());
             int sessionID = buff[38];
             tlsHandshake.setSessionID(sessionID);
             buff_2 = Arrays.copyOfRange(buff,39, 41);
@@ -51,10 +63,13 @@ public class TLSParseService {
             String[] cipherSuits = new String[cipherLen / 2];
             int index = 0;
             for (int i = 0; i < cipherLen; i += 2) {
-                StringBuilder temp = new StringBuilder();
-                temp.append(buff[41 + i]);
-                temp.append(buff[42 + i]);
-                cipherSuits[index++] = temp.toString();
+                byte[] buf_2 = new byte[]{buff[41 + i], buff[42 + i]};
+                short i1 = DataUtils.byteArrayToShort(buf_2);
+                cipherSuits[index++] = DataUtils.convertFromIntToHexa(i1);
+//                StringBuilder temp = new StringBuilder();
+//                temp.append(buff[41 + i]);
+//                temp.append(buff[42 + i]);
+//                cipherSuits[index++] = temp.toString();
             }
             tlsHandshake.setCipherSuites(cipherSuits);
             tlsStruct.setHandshake(tlsHandshake);
