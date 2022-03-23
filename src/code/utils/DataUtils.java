@@ -10,7 +10,7 @@ import java.util.logging.*;
 
 public class DataUtils {
 
-    public static final String GSTIME="yyyy-MM-dd HH:mm:ss";
+    public static final String GSTIME = "yyyy-MM-dd HH:mm:ss";
 
     /**
      * Compare 2 byte array with 32 bytes each other
@@ -49,21 +49,26 @@ public class DataUtils {
 
 
     public static int byteArrayToInt(byte[] b) {
-        return   b[3] & 0xFF |
+        return b[3] & 0xFF |
                 (b[2] & 0xFF) << 8 |
                 (b[1] & 0xFF) << 16 |
                 (b[0] & 0xFF) << 24;
     }
 
 
-
     public static short byteArrayToShort(byte[] b) {
-        return (short) ( b[0] & 0xFF |
-                         (b[1] & 0xFF) << 8);
+        return (short) (b[0] & 0xFF |
+                (b[1] & 0xFF) << 8);
 //        short s0 = (short) (b[0] & 0xff);// 最低位
 //        short s1 = (short) (b[1] & 0xff);
 //        s1 <<= 8;
 //        return  (short) (s0 | s1);
+    }
+
+    public static int byteArrayToInt3(byte[] b) {
+        return b[0] & 0xFF |
+                (b[1] & 0xFF) << 8 |
+                (b[2] & 0xFF) << 16;
     }
 
     /**
@@ -91,12 +96,12 @@ public class DataUtils {
     }
 
 
-        /**
-         * Convert Little indian byte array to big endian byte array
-         *
-         * @param data
-         * @return
-         */
+    /**
+     * Convert Little indian byte array to big endian byte array
+     *
+     * @param data
+     * @return
+     */
     public static byte[] convertLeToBe(byte[] data) {
         byte[] temp = new byte[data.length];
 
@@ -108,13 +113,14 @@ public class DataUtils {
 
     /**
      * unix时间戳转换成日期格式
+     *
      * @param timestamp
      * @return
      */
     public static String unixTimeStampToDate(String timestamp) {
         long time = Long.parseLong(timestamp) * 1000;
-        Date date=new Date(time);
-        SimpleDateFormat format=new SimpleDateFormat(GSTIME);
+        Date date = new Date(time);
+        SimpleDateFormat format = new SimpleDateFormat(GSTIME);
         return format.format(date);
     }
 
@@ -132,10 +138,10 @@ public class DataUtils {
         if (length == 2) {
             return (array[0] & 0xff) * 256 + (array[1] & 0xff);
         } else if (length == 4) {
-            int value= 0;
+            int value = 0;
             for (int i = 0; i < 4; i++) {
-                int shift= (4 - 1 - i) * 8;
-                value +=(array[i] & 0x000000FF) << shift;
+                int shift = (4 - 1 - i) * 8;
+                value += (array[i] & 0x000000FF) << shift;
             }
 
             return value;
@@ -149,5 +155,18 @@ public class DataUtils {
             sb.append(b);
         }
         return sb.toString();
+    }
+
+    public static String intToHex(int n) {
+        //StringBuffer s = new StringBuffer();
+        StringBuilder sb = new StringBuilder(8);
+        String a;
+        char[] b = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+        while (n != 0) {
+            sb = sb.append(b[n % 16]);
+            n = n / 16;
+        }
+        a = sb.reverse().toString();
+        return a;
     }
 }
