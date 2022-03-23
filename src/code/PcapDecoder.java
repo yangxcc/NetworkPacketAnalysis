@@ -2,11 +2,14 @@ package code;
 
 import code.structure.*;
 import code.utils.DataUtils;
+import com.sun.media.jfxmedia.track.Track;
+import org.omg.IOP.Encoding;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 
 public class PcapDecoder {
 
@@ -24,8 +27,12 @@ public class PcapDecoder {
         if (inputFilePath != null) {
             try {
                 this.data = Files.readAllBytes(Paths.get(inputFilePath));
+
 //                System.out.println("数据文件长度（单位/字节）" + data.length);
-                System.out.println(Arrays.toString(data));
+//                for (int i = 0; i < data.length; i++) {
+//                    System.out.printf(" " + data[i]);
+//                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }

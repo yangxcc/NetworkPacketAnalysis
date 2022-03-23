@@ -61,6 +61,7 @@ public class PCAPFileParse {
             if (globalHeader.getMagic().equals("D4C3B2A1")) {
                 // 小端模式
                 isBigEndian = false;
+                System.out.println("是小端模式！");
             }
             System.out.println(globalHeader.toString());
 //            if (globalHeader.getLinkType() != GlobalHeader.LINK_TYPE_ETHERNET) {
