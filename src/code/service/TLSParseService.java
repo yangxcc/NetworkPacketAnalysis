@@ -64,7 +64,7 @@ public class TLSParseService {
             int index = 0;
             for (int i = 0; i < cipherLen; i += 2) {
                 byte[] buf_2 = new byte[]{buff[41 + i], buff[42 + i]};
-                short i1 = DataUtils.byteArrayToShort(buf_2);
+                int i1 = DataUtils.byteArray2Int(buf_2,2);
                 cipherSuits[index++] = DataUtils.convertFromIntToHexa(i1);
 //                StringBuilder temp = new StringBuilder();
 //                temp.append(buff[41 + i]);
